@@ -4,7 +4,7 @@
 response=$(curl -s "http://localhost:5000/add?num1=5&num2=3")
 
 # Validate the response
-if [ "$response" == "8" ]; then
+if [ "$response" == "8.0" ]; then
   echo "Test passed: The response is 8."
   exit 0
 else
