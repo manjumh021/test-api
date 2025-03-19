@@ -2,29 +2,42 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Repository') {
+        stage('Clone the Repo') {
             steps {
                 git branch: 'main', url: 'https://github.com/manjumh021/test-api.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build the Image') {
             steps {
-                script {
-                    docker.build("my-flask-app")
-                }
+                sh "docker build -t flask-app:latest ."
             }
         }
 
-        stage('Run Container and Test') {
+        stage('Run Container') {
             steps {
-                sh './test_api.sh'
+                sh "docker run -d --name myapp -p 5000:5000 flask-app"
             }
         }
 
-        stage('Clean Up') {
+        stage('Test API') {
             steps {
-                sh 'docker rmi -f my-flask-app'
+                sh "./test_api.sh"
+            }
+        }
+
+        stage('Stop Container and Remove Image') {
+            steps {
+                sh """
+                    docker stop myapp || true
+                    docker rm myapp || true
+                    docker rmi flask-app:latest || true
+                """
+            }
+        }
+
+        stage('Clean Workspace') {
+            steps {
                 cleanWs()
             }
         }
